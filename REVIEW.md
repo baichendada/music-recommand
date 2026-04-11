@@ -39,8 +39,8 @@
 | **前后端分离架构** | ✅ 已实现 | Android + FastAPI |
 | **安卓前端** | ✅ 已实现 | `android/app/src/main/java/` |
 | **后端服务** | ✅ 已实现 | `backend/app/` |
-| **数据库** | ✅ 已实现 | In-memory + JSON文件 (可升级SQLite/MySQL) |
-| **情感输入功能** | ✅ 已实现 | HomeScreen - emotion chips |
+| **数据库** | ✅ 已实现 | In-memory + SQLite (USE_DATABASE=true 启用，data/music_app.db) |
+| **情感输入功能** | ✅ 已实现 | HomeScreen - emotion chips（支持多选，点击情感标签跳回首页刷新推荐） |
 | **音乐推荐列表** | ✅ 已实现 | RecommendationsTab |
 | **音乐播放** | ✅ 已实现 | AudioPlayer.kt (ExoPlayer + HTTP streaming) |
 | **用户反馈** (喜欢/不喜欢/跳过) | ✅ 已实现 | like/skip/play |
@@ -105,20 +105,23 @@
 - 性能测试
 - 用户测试问卷
 
-### 新增功能
+### 新增功能（历史）
 - `hybrid_recommender.py`: 混合推荐引擎 (SVD + cosine similarity)
 - `scripts/process_music.py`: Bensound 音乐处理脚本
 - `scripts/download_gtzan.py`: GTZAN 数据集处理脚本
-- `data/music_processed.json`: Bensound 音频特征数据
 - `data/music_gtzan.json`: GTZAN 音频特征数据 (999首)
-- `data/gtzan/`: GTZAN 原始音频文件
-- `data/user_item_matrix.pkl`: 用户交互矩阵
 - `app/api/music.py`: 音频流媒体端点 (GET /api/music/audio/{id})
 - `components/AudioPlayer.kt`: ExoPlayer 音频播放 (支持HTTP流媒体)
-- `AndroidManifest.xml`: 添加音频流媒体支持
 - `app/api/favorites.py`: 收藏API端点
-- `app/services/data_store.py`: 收藏数据存储
 - `app/services/recommendation_service.py`: 基于收藏的推荐算法
+
+### 新增功能（2026-04-11）
+- **Bug 修复**：音频播放 `UnrecognizedInputFormatException` — HTTP URL 改为 302 重定向，新增 `media3-extractor` 依赖
+- **Bug 修复**：全屏播放器点赞不同步收藏 — `isLiked` 改为从 `homeViewModel.favoriteIds` 派生
+- **Bug 修复**：Profile 页 Plays/Likes 统计永远为 0 — 新增 `GET /api/auth/stats` 接口
+- **Bug 修复**：Settings 开关无法切换 — 绑定本地 `remember` 状态
+- **Bug 修复**：情感标签 Chip 无响应 — 点击触发 `recordEmotion()` 并跳回首页
+- **新功能**：SQLite 数据库持久化 — `USE_DATABASE=true` 启用，支持一键降级
 
 ### 📝 建议
 1. 运行评估脚本测试算法效果

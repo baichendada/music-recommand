@@ -23,9 +23,9 @@ A mobile music recommendation system that leverages affective computing to analy
 - **Architecture**: MVVM with Clean Architecture
 - **Networking**: Retrofit, OkHttp
 
-### Database (Phase 1: In-Memory → Phase 2: MySQL + Redis)
+### Database
 - **Phase 1**: In-memory dict/list (fast iteration)
-- **Phase 2**: SQLite (file-based, simple migration)
+- **Phase 2**: SQLite (file-based, zero-config, **已实现** — 改一行 `.env` 即可启用)
 - **Phase 3**: MySQL 8.0 + Redis 7.x (production-ready)
 
 ---
@@ -76,78 +76,81 @@ A mobile music recommendation system that leverages affective computing to analy
 
 ## Database Schema
 
-### Users Table
+> 音乐数据不入库，继续从 `music_gtzan.json` 启动时加载到内存。以下四张表已在 SQLite 模式下实现（`backend/app/models/orm_models.py`）。
+
+### users（用户表）
 ```
 users
-├── id (INT, PK)
-├── username (VARCHAR)
-├── password_hash (VARCHAR)
-├── email (VARCHAR)
-├── created_at (DATETIME)
-└── updated_at (DATETIME)
+├── id           INTEGER  PRIMARY KEY AUTOINCREMENT
+├── username     TEXT     UNIQUE NOT NULL
+├── email        TEXT     UNIQUE NOT NULL
+├── password_hash TEXT    NOT NULL
+├── created_at   DATETIME
+└── updated_at   DATETIME
 ```
 
-### Music Table
+### interactions（交互记录表）
 ```
-music
-├── id (INT, PK)
-├── title (VARCHAR)
-├── artist (VARCHAR)
-├── album (VARCHAR)
-├── duration (INT)
-├── audio_url (VARCHAR)
-├── cover_url (VARCHAR)
-├── lyrics (TEXT)
-├── emotion_tags (JSON)
-├── audio_features (JSON)
-├── created_at (DATETIME)
-└── updated_at (DATETIME)
+interactions
+├── id               INTEGER  PRIMARY KEY AUTOINCREMENT
+├── user_id          INTEGER  NOT NULL
+├── music_id         INTEGER  NOT NULL
+├── interaction_type TEXT     NOT NULL  -- play / like / skip / complete
+├── play_duration    INTEGER  DEFAULT 0
+└── created_at       DATETIME
 ```
 
-### Emotions Table
+### favorites（收藏表）
+```
+favorites
+├── id         INTEGER  PRIMARY KEY AUTOINCREMENT
+├── user_id    INTEGER  NOT NULL
+├── music_id   INTEGER  NOT NULL
+├── created_at DATETIME
+└── UNIQUE(user_id, music_id)  -- 防止重复收藏
+```
+
+### emotions（情绪历史表）
 ```
 emotions
-├── id (INT, PK)
-├── user_id (INT, FK)
-├── emotion_type (VARCHAR)
-├── intensity (FLOAT)
-├── source (VARCHAR) -- 'explicit' or 'inferred'
-├── created_at (DATETIME)
-└── updated_at (DATETIME)
+├── id           INTEGER  PRIMARY KEY AUTOINCREMENT
+├── user_id      INTEGER  NOT NULL
+├── emotion_type TEXT     NOT NULL  -- happy/sad/angry/calm/excited/relaxed
+├── intensity    REAL     DEFAULT 1.0
+├── source       TEXT     DEFAULT 'explicit'
+└── created_at   DATETIME
 ```
 
-### User Music Interaction Table
-```
-user_music_interaction
-├── id (INT, PK)
-├── user_id (INT, FK)
-├── music_id (INT, FK)
-├── interaction_type (VARCHAR) -- 'play', 'like', 'skip', 'complete'
-├── play_duration (INT)
-├── created_at (DATETIME)
-└── updated_at (DATETIME)
+---
+
+## 数据库模式切换
+
+编辑 `backend/.env`，改一行即可：
+
+```bash
+# 内存模式（默认，重启后数据丢失）
+USE_DATABASE=false
+
+# SQLite 持久化模式（数据保存在 backend/data/music_app.db）
+USE_DATABASE=true
 ```
 
-### User Preference Table
-```
-user_preferences
-├── id (INT, PK)
-├── user_id (INT, FK)
-├── preferred_genres (JSON)
-├── preferred_emotions (JSON)
-├── listening_history_summary (JSON)
-└── updated_at (DATETIME)
-```
+启动时系统自动：
+1. 创建 SQLite 文件和表结构（首次运行）
+2. 将数据库中已有的用户、交互、收藏、情绪记录恢复到内存
+3. 每次写操作同步到数据库
+
+降级时只需将 `USE_DATABASE` 改回 `false`，无需任何其他操作。
 
 ---
 
 ## Storage Evolution
 
-| Phase | Storage | Use Case |
-|-------|---------|----------|
-| 1 | In-Memory (dict/list) | Rapid prototyping, basic API testing |
-| 2 | SQLite | File-based, no setup needed, simple migration |
-| 3 | MySQL 8.0 + Redis 7.x | Production-ready, caching, sessions |
+| Phase | Storage | Use Case | 状态 |
+|-------|---------|----------|------|
+| 1 | In-Memory (dict/list) | Rapid prototyping, basic API testing | ✅ 已实现 |
+| 2 | SQLite | File-based, no setup needed, USE_DATABASE=true 启用 | ✅ 已实现 |
+| 3 | MySQL 8.0 + Redis 7.x | Production-ready, caching, sessions | 待实现 |
 
 ---
 
@@ -193,9 +196,11 @@ user_preferences
 - Music player
 - Recommendation display
 
-### Phase 5: Persistence Upgrade
-- Migrate to SQLite
-- Add Redis caching
+### Phase 5: Persistence Upgrade ✅
+- SQLite 接入完成（`USE_DATABASE=true` 启用）
+- 持久化：users / interactions / favorites / emotions 四张表
+- 支持一键降级回内存模式（`USE_DATABASE=false`）
+- 启动时自动从数据库恢复数据到内存
 
 ### Phase 6: Production Ready
 - Migrate to MySQL + Redis

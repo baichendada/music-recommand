@@ -93,6 +93,19 @@ Get current user info.
 }
 ```
 
+#### GET /api/auth/stats
+Get user interaction statistics.
+
+**Headers:** `Authorization: Bearer <token>`
+
+**Response:**
+```json
+{
+  "plays": 42,
+  "likes": 10
+}
+```
+
 ---
 
 ### Music

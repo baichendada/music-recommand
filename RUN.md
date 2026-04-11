@@ -20,34 +20,39 @@ This guide explains how to run the Music Recommendation System on your PC.
 cd /Users/baichen/Project/music-project/backend
 ```
 
-### Step 2: Create Virtual Environment
+### Step 2: Install & Start (choose one)
+
+**Option A — macOS + Anaconda (recommended):**
+```bash
+/opt/anaconda3/bin/pip install -r requirements.txt
+/opt/anaconda3/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
+```
+
+**Option B — Standard venv:**
 ```bash
 python3 -m venv venv
-```
-
-### Step 3: Activate Environment
-```bash
-# Mac/Linux:
-source venv/bin/activate
-
-# Windows:
-venv\Scripts\activate
-```
-
-### Step 4: Install Dependencies
-```bash
+source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-```
-
-### Step 5: Start Server
-```bash
 uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
 ```
 
 **You should see:**
 ```
 INFO:     Uvicorn running on http://0.0.0.0:8001
+[db] USE_DATABASE=false — running in memory mode
+[+] Using GTZAN dataset: 999 songs
 ```
+
+### Step 3 (Optional): Enable SQLite Persistence
+
+By default data is lost on restart. To keep user data across restarts:
+
+```bash
+# Edit backend/.env
+USE_DATABASE=true
+```
+
+The database file `backend/data/music_app.db` is created automatically.
 
 ---
 
@@ -175,8 +180,12 @@ curl -X POST http://localhost:8001/api/ai/analyze/emotion \
 
 ### Backend Won't Start
 - Check Python version: `python3 --version` (must be 3.10+)
-- Activate venv: `source venv/bin/activate`
+- If using Anaconda on macOS, use `/opt/anaconda3/bin/python` instead of venv (venv's sklearn may conflict with Anaconda Python 3.13)
 - Reinstall deps: `pip install -r requirements.txt`
+
+### Audio Won't Play (UnrecognizedInputFormatException)
+- Ensure `media3-extractor:1.3.1` is in `android/app/build.gradle.kts`
+- Do **Gradle Sync** in Android Studio after any dependency change
 
 ### App Can't Connect
 - Make sure backend is running (check terminal)

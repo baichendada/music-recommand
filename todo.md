@@ -68,12 +68,15 @@
 - [x] Implement audio streaming playback (ExoPlayer + HTTP)
 - [x] Add audio streaming endpoint in backend
 
-## Phase 6: Persistence Upgrade (SQLite)
+## Phase 6: Persistence Upgrade (SQLite) ✅
 
-- [ ] Install SQLAlchemy
-- [ ] Migrate in-memory storage to SQLite
-- [ ] Add data migration scripts
-- [ ] Test data persists after restart
+- [x] Install SQLAlchemy
+- [x] Migrate in-memory storage to SQLite (USE_DATABASE=true 启用)
+- [x] ORM 模型：users / interactions / favorites / emotions
+- [x] 启动时从数据库恢复数据到内存
+- [x] 写操作同步到数据库（注册/交互/收藏/情绪）
+- [x] 支持一键降级回内存模式（USE_DATABASE=false）
+- [x] Test data persists after restart
 
 ## Phase 7: Production Ready (MySQL + Redis)
 

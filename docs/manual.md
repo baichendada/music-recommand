@@ -27,30 +27,23 @@ Music Recommendation System is a mobile application that uses affective computin
 cd backend
 ```
 
-2. Create virtual environment:
+2. Install and run (macOS + Anaconda, recommended):
+```bash
+/opt/anaconda3/bin/pip install -r requirements.txt
+/opt/anaconda3/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
+```
+
+   Or with standard venv:
 ```bash
 python3 -m venv venv
-```
-
-3. Activate virtual environment:
-```bash
-# Linux/Mac:
-source venv/bin/activate
-# Windows:
-venv\Scripts\activate
-```
-
-4. Install dependencies:
-```bash
+source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-```
-
-5. Run the server:
-```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8001
+uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
 ```
 
 The backend runs at `http://localhost:8001`
+
+> **Note:** Use `--host 0.0.0.0` so physical Android devices on the same WiFi can connect.
 
 ### Android App
 
@@ -139,7 +132,7 @@ lsof -i :8001
 kill -9 <PID>
 ```
 
-**Database errors:** Data is in-memory, restart clears data (normal for development)
+**Data lost after restart:** By default the system uses in-memory storage. To persist data across restarts, enable SQLite mode — see [Database Mode](#database-mode) below.
 
 ### Android Issues
 
@@ -165,16 +158,39 @@ kill -9 <PID>
 ```
 ┌─────────────┐     HTTP      ┌─────────────┐
 │   Android   │ ◄──────────► │   FastAPI   │
-│   (Kotlin) │              │  (Python)   │
+│   (Kotlin)  │              │  (Python)   │
 └─────────────┘              └──────┬──────┘
                                     │
                     ┌───────────────┼───────────────┐
                     │               │               │
               ┌─────▼─────┐  ┌─────▼─────┐  ┌─────▼─────┐
-              │  In-Mem   │  │    AI     │  │    API    │
-              │  Storage  │  │  (Librosa)│  │  Routes   │
+              │  Storage  │  │    AI     │  │    API    │
+              │ Mem+SQLite│  │  (Librosa)│  │  Routes   │
               └───────────┘  └───────────┘  └───────────┘
 ```
+
+---
+
+## Database Mode
+
+By default the system runs in **in-memory mode** (data lost on restart).  
+To enable **SQLite persistence**, edit `backend/.env`:
+
+```bash
+USE_DATABASE=true   # enable SQLite (data/music_app.db created automatically)
+USE_DATABASE=false  # revert to in-memory (default)
+```
+
+**What gets persisted:**
+
+| Table | Content |
+|-------|---------|
+| `users` | Accounts and password hashes |
+| `interactions` | Play / like / skip / complete records |
+| `favorites` | User's favorited songs |
+| `emotions` | Emotion selection history |
+
+Music data is always loaded from `data/music_gtzan.json` and does not need a database.
 
 ---
 
