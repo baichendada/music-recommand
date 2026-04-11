@@ -57,6 +57,20 @@ class MusicRepository {
         }
     }
 
+    suspend fun getUserStats(): Result<UserStats> {
+        return try {
+            val response = api.getUserStats()
+            if (response.isSuccessful) {
+                response.body()?.let { Result.Success(it) }
+                    ?: Result.Error("Empty response")
+            } else {
+                Result.Error(response.message(), response.code())
+            }
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "Unknown error")
+        }
+    }
+
     // Music
     suspend fun getMusicList(limit: Int = 50, offset: Int = 0): Result<List<Music>> {
         return try {

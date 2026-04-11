@@ -85,3 +85,8 @@ data class FavoriteCheck(
 data class FavoriteCount(
     val count: Int
 )
+
+data class UserStats(
+    val plays: Int,
+    val likes: Int
+)

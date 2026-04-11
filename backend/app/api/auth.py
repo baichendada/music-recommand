@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from app.models.schemas import UserCreate, UserLogin, UserResponse, Token
-from app.services import auth_service
+from app.services import auth_service, data_store
+from app.models.schemas import InteractionType
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 security = HTTPBearer()
@@ -25,3 +26,22 @@ async def get_me(credentials: HTTPAuthorizationCredentials = Depends(security)):
     """Get current user info"""
     token = credentials.credentials
     return auth_service.get_current_user(token)
+
+
+@router.get("/stats")
+async def get_user_stats(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Get user interaction statistics (play count, like count)"""
+    token = credentials.credentials
+    user = auth_service.get_current_user(token)
+    user_id = user.id
+
+    plays = sum(
+        1 for i in data_store.interactions_db.values()
+        if i["user_id"] == user_id and i["interaction_type"] == InteractionType.PLAY
+    )
+    likes = sum(
+        1 for i in data_store.interactions_db.values()
+        if i["user_id"] == user_id and i["interaction_type"] == InteractionType.LIKE
+    )
+
+    return {"plays": plays, "likes": likes}

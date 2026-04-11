@@ -44,11 +44,15 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    fun loadLikedMusic() {
+    fun loadStats() {
         viewModelScope.launch {
-            // For now, just show some placeholder data
-            // In production, this would fetch from a liked music endpoint
-            totalLikes = 0
+            when (val result = repository.getUserStats()) {
+                is Result.Success -> {
+                    totalPlays = result.data.plays
+                    totalLikes = result.data.likes
+                }
+                else -> {}
+            }
         }
     }
 
@@ -75,6 +79,7 @@ fun ProfileScreen(
     LaunchedEffect(Unit) {
         viewModel.loadProfile()
         viewModel.loadEmotionHistory()
+        viewModel.loadStats()
     }
 
     Scaffold(

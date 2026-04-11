@@ -34,6 +34,9 @@ interface MusicApiService {
     @GET("api/auth/me")
     suspend fun getMe(): Response<User>
 
+    @GET("api/auth/stats")
+    suspend fun getUserStats(): Response<UserStats>
+
     // Music
     @GET("api/music")
     suspend fun getMusicList(
