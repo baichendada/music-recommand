@@ -2,7 +2,15 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
+from app.core.database import init_db
 from app.api import auth, music, emotion, recommend, ai, favorites
+
+# Initialize database (no-op if USE_DATABASE=false)
+init_db()
+
+# Restore persisted data into memory (no-op if USE_DATABASE=false)
+from app.services.data_store import init_from_database
+init_from_database()
 
 # Create FastAPI app
 app = FastAPI(

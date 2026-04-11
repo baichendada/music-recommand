@@ -227,10 +227,18 @@ POST /api/ai/analyze/audio   # Extract audio features
 - Real AI-extracted features
 
 ### Phase 3: SQLite Mode
-```bash
-cd backend
-pip install sqlalchemy
-# Database file created automatically
+
+Edit `backend/.env` and set:
+```
+USE_DATABASE=true
+```
+
+That's it. The SQLite file `backend/data/music_app.db` is created automatically on first run.
+Users, interactions, favorites, and emotion history will survive server restarts.
+
+To revert to in-memory mode at any time, set:
+```
+USE_DATABASE=false
 ```
 
 ### Phase 4: MySQL + Redis Mode

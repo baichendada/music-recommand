@@ -7,6 +7,7 @@ from app.models.schemas import (
 )
 from app.services import data_store, emotion_service, music_service
 from app.services.hybrid_recommender import get_recommender, rebuild_recommender
+from app.core.config import settings
 
 
 def get_recommendations(
@@ -200,6 +201,19 @@ def record_interaction(
     }
 
     data_store.interactions_db[interaction_id] = interaction
+
+    # Sync to database
+    if settings.USE_DATABASE:
+        from app.core.database import is_db_enabled
+        from app.services.db_store import db_create_interaction
+        if is_db_enabled():
+            db_create_interaction(
+                interaction_id=interaction_id,
+                user_id=user_id,
+                music_id=music_id,
+                interaction_type=interaction_type.value if hasattr(interaction_type, 'value') else str(interaction_type),
+                play_duration=play_duration,
+            )
 
     # Rebuild recommendation matrix with new interaction
     try:

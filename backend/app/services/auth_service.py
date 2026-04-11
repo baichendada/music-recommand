@@ -10,6 +10,7 @@ from app.models.schemas import UserCreate, UserResponse, Token
 from app.services import data_store
 
 
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify password against hash"""
     return bcrypt.checkpw(
@@ -62,10 +63,17 @@ def register_user(user_data: UserCreate) -> UserResponse:
         "updated_at": datetime.now()
     }
 
-    # Store user
+    # Store user in memory
     data_store.users_db[user_id] = user
     data_store.users_by_username[user_data.username] = user_id
     data_store.users_by_email[user_data.email] = user_id
+
+    # Sync to database
+    if settings.USE_DATABASE:
+        from app.core.database import is_db_enabled
+        from app.services.db_store import db_create_user
+        if is_db_enabled():
+            db_create_user(user_id, user_data.username, user_data.email, user["password_hash"])
 
     return UserResponse(**user)
 

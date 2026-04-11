@@ -4,6 +4,7 @@ from fastapi import HTTPException, status
 
 from app.models.schemas import EmotionCreate, EmotionResponse, EmotionType
 from app.services import data_store
+from app.core.config import settings
 
 
 def record_emotion(user_id: int, emotion_data: EmotionCreate) -> EmotionResponse:
@@ -21,6 +22,20 @@ def record_emotion(user_id: int, emotion_data: EmotionCreate) -> EmotionResponse
     }
 
     data_store.emotions_db[emotion_id] = emotion
+
+    # Sync to database
+    if settings.USE_DATABASE:
+        from app.core.database import is_db_enabled
+        from app.services.db_store import db_create_emotion
+        if is_db_enabled():
+            db_create_emotion(
+                emotion_id=emotion_id,
+                user_id=user_id,
+                emotion_type=emotion_data.emotion_type.value if hasattr(emotion_data.emotion_type, 'value') else str(emotion_data.emotion_type),
+                intensity=emotion_data.intensity,
+                source=emotion_data.source,
+            )
+
     return EmotionResponse(**emotion)
 
 

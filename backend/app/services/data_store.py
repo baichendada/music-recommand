@@ -4,6 +4,8 @@ import uuid
 import os
 import json
 
+from app.core.config import settings
+
 # Data file for persistence
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'data')
 MUSIC_DATA_FILE = os.path.join(DATA_DIR, 'music_processed.json')
@@ -235,6 +237,62 @@ def init_sample_data():
 init_sample_data()
 
 
+def init_from_database():
+    """
+    If USE_DATABASE=true, load persisted users/interactions/favorites/emotions
+    from SQLite back into the in-memory dicts on startup.
+    """
+    if not settings.USE_DATABASE:
+        return
+
+    from app.core.database import is_db_enabled
+    from app.services.db_store import (
+        db_load_all_users,
+        db_load_all_interactions,
+        db_load_all_favorites,
+        db_load_all_emotions,
+    )
+
+    if not is_db_enabled():
+        return
+
+    global music_counter, emotions_counter, interactions_counter, favorites_counter
+
+    # Restore users
+    for u in db_load_all_users():
+        users_db[u["id"]] = u
+        users_by_username[u["username"]] = u["id"]
+        users_by_email[u["email"]] = u["id"]
+    if users_db:
+        print(f"[db] Restored {len(users_db)} users from database")
+
+    # Restore interactions
+    for i in db_load_all_interactions():
+        # interaction_type stored as string in DB, keep as-is for memory dict
+        interactions_db[i["id"]] = i
+    if interactions_db:
+        interactions_counter = max(interactions_db.keys())
+        print(f"[db] Restored {len(interactions_db)} interactions from database")
+
+    # Restore favorites
+    for f in db_load_all_favorites():
+        favorites_db[f["id"]] = f
+        uid, mid = f["user_id"], f["music_id"]
+        if uid not in favorites_by_user:
+            favorites_by_user[uid] = set()
+        favorites_by_user[uid].add(mid)
+    if favorites_db:
+        favorites_counter = max(favorites_db.keys())
+        print(f"[db] Restored {len(favorites_db)} favorites from database")
+
+    # Restore emotions
+    for e in db_load_all_emotions():
+        emotions_db[e["id"]] = e
+    if emotions_db:
+        emotions_counter = max(emotions_db.keys())
+        print(f"[db] Restored {len(emotions_db)} emotions from database")
+
+
 # Favorites helper functions
 def add_favorite(user_id: int, music_id: int) -> dict:
     """Add a music to user's favorites"""
@@ -242,7 +300,6 @@ def add_favorite(user_id: int, music_id: int) -> dict:
 
     # Check if already favorited
     if user_id in favorites_by_user and music_id in favorites_by_user[user_id]:
-        # Already favorited, return existing
         for fav_id, fav in favorites_db.items():
             if fav['user_id'] == user_id and fav['music_id'] == music_id:
                 return fav
@@ -262,6 +319,13 @@ def add_favorite(user_id: int, music_id: int) -> dict:
         favorites_by_user[user_id] = set()
     favorites_by_user[user_id].add(music_id)
 
+    # Sync to database
+    if settings.USE_DATABASE:
+        from app.core.database import is_db_enabled
+        from app.services.db_store import db_add_favorite
+        if is_db_enabled():
+            db_add_favorite(favorites_counter, user_id, music_id)
+
     return favorite
 
 
@@ -273,13 +337,20 @@ def remove_favorite(user_id: int, music_id: int) -> bool:
     # Remove from index
     favorites_by_user[user_id].discard(music_id)
 
-    # Remove from database
+    # Remove from memory
     for fav_id, fav in list(favorites_db.items()):
         if fav['user_id'] == user_id and fav['music_id'] == music_id:
             del favorites_db[fav_id]
-            return True
+            break
 
-    return False
+    # Sync to database
+    if settings.USE_DATABASE:
+        from app.core.database import is_db_enabled
+        from app.services.db_store import db_remove_favorite
+        if is_db_enabled():
+            db_remove_favorite(user_id, music_id)
+
+    return True
 
 
 def get_user_favorites(user_id: int) -> List[dict]:

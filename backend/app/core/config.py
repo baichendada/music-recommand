@@ -13,8 +13,11 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
 
-    # Database (for future use)
-    DATABASE_URL: Optional[str] = None
+    # Database
+    # Set USE_DATABASE=true in .env to enable SQLite persistence
+    # Set USE_DATABASE=false (default) to use in-memory mode
+    USE_DATABASE: bool = False
+    DATABASE_URL: str = "sqlite:///./data/music_app.db"
 
     class Config:
         env_file = ".env"
