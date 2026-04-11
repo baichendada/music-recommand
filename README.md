@@ -75,8 +75,22 @@ music-project/
 
 ### 1. Backend Setup
 
+> **Note (macOS + Anaconda)**: If you use Anaconda on macOS, the venv's sklearn/joblib may fail to start due to a Python version string parsing issue. Use Anaconda's Python directly instead of activating the venv.
+
+**Option A: Anaconda (macOS recommended)**
 ```bash
-# Navigate to backend directory
+cd backend
+
+# Install dependencies into Anaconda base environment (if not already installed)
+/opt/anaconda3/bin/pip install -r requirements.txt
+/opt/anaconda3/bin/pip install librosa jieba scipy scikit-learn
+
+# Run the server
+/opt/anaconda3/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
+```
+
+**Option B: Standard venv**
+```bash
 cd backend
 
 # Create virtual environment
@@ -99,6 +113,8 @@ uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
 ```
 
 The backend will start at `http://localhost:8001`
+
+> **Important**: Use `--host 0.0.0.0` (not the default `127.0.0.1`) so that physical Android devices on the same WiFi can connect to the backend.
 
 ### 2. Process Music Data (Optional)
 
@@ -250,6 +266,11 @@ This compares:
 - For physical device, both must be on same WiFi
 - Check firewall allows port 8001
 - Add internet permission in AndroidManifest.xml
+
+### Audio playback fails (UnrecognizedInputFormatException)
+- Ensure `media3-extractor:1.3.1` is in `android/app/build.gradle.kts` dependencies
+- This provides WAV/PCM format support for ExoPlayer
+- After adding, do **Gradle Sync** in Android Studio before rebuilding
 
 ### Audio feature extraction fails
 - Install ffmpeg: `brew install ffmpeg` (Mac) or `apt install ffmpeg` (Linux)

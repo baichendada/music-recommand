@@ -1,6 +1,6 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, Query, status
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi import HTTPException
 
@@ -44,9 +44,9 @@ async def get_audio_stream(music_id: int):
     if not audio_url:
         raise HTTPException(status_code=404, detail="Audio file not found")
 
-    # If it's already a URL, return it
+    # If it's already a URL, redirect to it so media players can stream directly
     if audio_url.startswith('http'):
-        return JSONResponse({"audio_url": audio_url})
+        return RedirectResponse(url=audio_url, status_code=302)
 
     # If it's a local file, stream it
     if os.path.exists(audio_url):

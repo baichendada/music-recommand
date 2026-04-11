@@ -5,12 +5,14 @@ import android.util.Log
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.datasource.DefaultDataSource
 import com.music.recommendation.api.ApiClient
 import com.music.recommendation.models.Music
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.runBlocking
 
 class AudioPlayer(private val context: Context) {
 
@@ -68,9 +70,15 @@ class AudioPlayer(private val context: Context) {
 
     private fun initializePlayer() {
         Log.d("AudioPlayer", "Initializing ExoPlayer")
-        exoPlayer = ExoPlayer.Builder(context).build().apply {
-            addListener(playerListener)
-        }
+        val httpDataSourceFactory = DefaultHttpDataSource.Factory()
+            .setAllowCrossProtocolRedirects(true)  // 允许跟随 302 重定向
+        val dataSourceFactory = DefaultDataSource.Factory(context, httpDataSourceFactory)
+        val mediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory)
+        exoPlayer = ExoPlayer.Builder(context)
+            .setMediaSourceFactory(mediaSourceFactory)
+            .build().apply {
+                addListener(playerListener)
+            }
         Log.d("AudioPlayer", "ExoPlayer initialized: $exoPlayer")
     }
 
