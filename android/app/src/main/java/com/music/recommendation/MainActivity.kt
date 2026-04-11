@@ -64,7 +64,6 @@ fun MusicApp(audioPlayer: AudioPlayer) {
     val playProgress by audioPlayer.progress.collectAsStateWithLifecycle()
 
     // Player state
-    var isLiked by remember { mutableStateOf(false) }
     var currentQueue by remember { mutableStateOf(listOf<Music>()) }
     var currentIndex by remember { mutableIntStateOf(0) }
 
@@ -188,6 +187,7 @@ fun MusicApp(audioPlayer: AudioPlayer) {
 
         Screen.Player -> {
             currentMusic?.let { music ->
+                val isLiked = homeViewModel.favoriteIds.contains(music.id)
                 com.music.recommendation.components.FullPlayerScreen(
                     music = music,
                     isPlaying = isPlaying,
@@ -196,7 +196,7 @@ fun MusicApp(audioPlayer: AudioPlayer) {
                     onSeek = { progress -> audioPlayer.seekToProgress(progress) },
                     onPrevious = { audioPlayer.playPrevious() },
                     onNext = { audioPlayer.playNext() },
-                    onLike = { isLiked = !isLiked },
+                    onLike = { homeViewModel.toggleFavorite(music.id) },
                     onBack = { currentScreen = Screen.Home },
                     isLiked = isLiked
                 )
