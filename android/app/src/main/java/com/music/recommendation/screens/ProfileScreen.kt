@@ -76,6 +76,11 @@ fun ProfileScreen(
     onLogout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Settings local state
+    var notificationsEnabled by remember { mutableStateOf(true) }
+    var darkModeEnabled by remember { mutableStateOf(false) }
+    var autoPlayEnabled by remember { mutableStateOf(true) }
+
     LaunchedEffect(Unit) {
         viewModel.loadProfile()
         viewModel.loadEmotionHistory()
@@ -284,7 +289,10 @@ fun ProfileScreen(
                                 Icon(Icons.Default.Notifications, contentDescription = null)
                             },
                             trailingContent = {
-                                Switch(checked = true, onCheckedChange = { })
+                                Switch(
+                                    checked = notificationsEnabled,
+                                    onCheckedChange = { notificationsEnabled = it }
+                                )
                             }
                         )
                         ListItem(
@@ -293,7 +301,10 @@ fun ProfileScreen(
                                 Icon(Icons.Default.DarkMode, contentDescription = null)
                             },
                             trailingContent = {
-                                Switch(checked = false, onCheckedChange = { })
+                                Switch(
+                                    checked = darkModeEnabled,
+                                    onCheckedChange = { darkModeEnabled = it }
+                                )
                             }
                         )
                         ListItem(
@@ -302,7 +313,10 @@ fun ProfileScreen(
                                 Icon(Icons.Default.PlayCircle, contentDescription = null)
                             },
                             trailingContent = {
-                                Switch(checked = true, onCheckedChange = { })
+                                Switch(
+                                    checked = autoPlayEnabled,
+                                    onCheckedChange = { autoPlayEnabled = it }
+                                )
                             }
                         )
                     }

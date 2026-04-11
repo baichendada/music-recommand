@@ -115,7 +115,8 @@ fun FullPlayerScreen(
     onNext: () -> Unit,
     onLike: () -> Unit,
     onBack: () -> Unit,
-    isLiked: Boolean
+    isLiked: Boolean,
+    onEmotionClick: (String) -> Unit = {}
 ) {
     if (music == null) return
 
@@ -189,7 +190,7 @@ fun FullPlayerScreen(
                 ) {
                     tags.take(3).forEach { tag ->
                         SuggestionChip(
-                            onClick = { },
+                            onClick = { onEmotionClick(tag) },
                             label = { Text(tag, style = MaterialTheme.typography.labelSmall) }
                         )
                     }

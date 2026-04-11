@@ -198,7 +198,11 @@ fun MusicApp(audioPlayer: AudioPlayer) {
                     onNext = { audioPlayer.playNext() },
                     onLike = { homeViewModel.toggleFavorite(music.id) },
                     onBack = { currentScreen = Screen.Home },
-                    isLiked = isLiked
+                    isLiked = isLiked,
+                    onEmotionClick = { emotion ->
+                        homeViewModel.recordEmotion(emotion)
+                        currentScreen = Screen.Home
+                    }
                 )
             }
         }
