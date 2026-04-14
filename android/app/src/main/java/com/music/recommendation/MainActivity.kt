@@ -145,6 +145,8 @@ fun MusicApp(audioPlayer: AudioPlayer) {
                             currentScreen = Screen.Login
                         },
                         onMusicSelected = { music ->
+                            // Record play interaction
+                            homeViewModel.recordInteraction(music.id, "play")
                             // Play the selected music
                             currentQueue = homeViewModel.recommendations?.recommendations ?: listOf(music)
                             currentIndex = currentQueue.indexOf(music).coerceAtLeast(0)
