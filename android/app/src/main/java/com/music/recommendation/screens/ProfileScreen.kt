@@ -157,12 +157,6 @@ fun ProfileScreen(
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     StatCard(
-                        icon = Icons.Default.PlayCircle,
-                        value = "${viewModel.totalPlays}",
-                        label = "Plays",
-                        modifier = Modifier.weight(1f)
-                    )
-                    StatCard(
                         icon = Icons.Default.Favorite,
                         value = "${viewModel.totalLikes}",
                         label = "Likes",

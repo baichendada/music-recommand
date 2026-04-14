@@ -30,7 +30,7 @@ async def get_me(credentials: HTTPAuthorizationCredentials = Depends(security)):
 
 @router.get("/stats")
 async def get_user_stats(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    """Get user interaction statistics (play count, like count)"""
+    """Get user interaction statistics"""
     token = credentials.credentials
     user = auth_service.get_current_user(token)
     user_id = user.id
@@ -39,9 +39,7 @@ async def get_user_stats(credentials: HTTPAuthorizationCredentials = Depends(sec
         1 for i in data_store.interactions_db.values()
         if i["user_id"] == user_id and i["interaction_type"] == InteractionType.PLAY
     )
-    likes = sum(
-        1 for i in data_store.interactions_db.values()
-        if i["user_id"] == user_id and i["interaction_type"] == InteractionType.LIKE
-    )
+    # Use favorites count as likes (favorites are added via /favorites endpoint, not interactions)
+    likes = len(data_store.get_user_favorites(user_id))
 
     return {"plays": plays, "likes": likes}
