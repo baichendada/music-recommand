@@ -26,7 +26,7 @@
 | **用户-物品矩阵构建** | ✅ 已实现 | `UserItemMatrix.build_matrix()` |
 | **余弦相似度计算** | ✅ 已实现 | SVD降维 + sklearn cosine_similarity |
 | **LightFM模型** | ⚠️ 替代方案 | scipy/sklearn实现相同功能 |
-| **冷启动处理** | ✅ 已实现 | 内容推荐作为fallback |
+| **冷启动处理** | ✅ 已实现 | 新用户→随机；有情感无交互→content-based；有交互→hybrid |
 | **情感感知适配** | ✅ 已实现 | 动态调整推荐策略 |
 | **准确率/召回率评估** | ✅ 已实现 | `tests/evaluate_recommender.py` |
 
@@ -43,7 +43,7 @@
 | **情感输入功能** | ✅ 已实现 | HomeScreen - emotion chips（支持多选，点击情感标签跳回首页刷新推荐） |
 | **音乐推荐列表** | ✅ 已实现 | RecommendationsTab |
 | **音乐播放** | ✅ 已实现 | AudioPlayer.kt (ExoPlayer + HTTP streaming) |
-| **用户反馈** (喜欢/不喜欢/跳过) | ✅ 已实现 | like/skip/play |
+| **用户反馈** (喜欢/不喜欢/跳过) | ✅ 已实现 | like/skip/play（点击歌曲卡片自动记录 play 交互） |
 | **收藏功能** | ✅ 已实现 | Favorites tab + API |
 | **基于收藏推荐** | ✅ 已实现 | /api/recommend/by-favorites |
 | **个人中心** | ✅ 已实现 | ProfileScreen |

@@ -56,7 +56,7 @@ val emotions = listOf("happy", "sad", "calm", "excited", "angry", "relaxed")
 | 功能 | 实现状态 | 代码位置 |
 |------|---------|---------|
 | 点赞/取消点赞 | ✅ 已实现 | `toggleFavorite()` in HomeScreen |
-| 播放记录 | ✅ 已实现 | `recordInteraction(musicId, "play")` |
+| 播放记录 | ✅ 已实现 | 点击歌曲卡片时触发 `recordInteraction(musicId, "play")`（`MainActivity.onMusicSelected`） |
 | 跳过记录 | ✅ 已实现 | `recordInteraction(musicId, "skip")` |
 | 收藏列表 | ✅ 已实现 | FavoritesTab in HomeScreen |
 
@@ -69,6 +69,7 @@ val emotions = listOf("happy", "sad", "calm", "excited", "angry", "relaxed")
 | 收藏列表 | ✅ 已实现 | `GET /api/favorites` |
 | 检查收藏状态 | ✅ 已实现 | `GET /api/favorites/check/{id}` |
 | 基于收藏推荐 | ✅ 已实现 | `GET /api/recommend/by-favorites` |
+| 冷启动处理 | ✅ 已修复 | 无收藏时返回空列表（不再 fallback 随机推荐） |
 
 **代码片段** (`recommendation_service.py`):
 ```python
@@ -76,6 +77,7 @@ val emotions = listOf("happy", "sad", "calm", "excited", "angry", "relaxed")
 - 分析收藏歌曲的音频特征 (tempo, energy, danceability)
 - 提取收藏歌曲的情感标签
 - 找到特征相似的歌曲推荐
+# 无收藏时返回空列表，前端显示空状态
 ```
 
 ### 2.6 个人中心
@@ -84,7 +86,9 @@ val emotions = listOf("happy", "sad", "calm", "excited", "angry", "relaxed")
 |------|---------|---------|
 | 用户资料 | ✅ 已实现 | `screens/ProfileScreen.kt` |
 | 情感历史 | ✅ 已实现 | `loadEmotionHistory()` |
-| 播放统计 | ✅ 已实现 | Profile显示stats |
+| Likes 统计 | ✅ 已修复 | 显示用户收藏歌曲数（`GET /auth/stats` 从 favorites_db 统计） |
+| Dark Mode | ✅ 已修复 | 切换开关真正改变 MaterialTheme colorScheme |
+| 情感历史标签 | ✅ 已修复 | source 显示为普通文字，非可点击 chip |
 
 ---
 
@@ -147,7 +151,7 @@ GENRE_EMOTION_MAP = {
 | 用户-物品矩阵 | ✅ 已实现 | `UserItemMatrix.build_matrix()` |
 | SVD降维 | ✅ 已实现 | sklearn TruncatedSVD |
 | 余弦相似度 | ✅ 已实现 | sklearn cosine_similarity |
-| 冷启动处理 | ✅ 已实现 | 内容推荐fallback |
+| 冷启动处理 | ✅ 已实现 | 新用户：随机推荐；有情感无交互：content-based；有交互数据：hybrid |
 
 ### 3.4 数据存储与查询
 
@@ -229,7 +233,21 @@ GENRE_EMOTION_MAP = {
 
 ---
 
-## 七、待完善功能
+## 七、已修复 Bug（2026-04-14）
+
+| Bug | 修复内容 | 相关文件 |
+|-----|---------|---------|
+| interactions 永远为空 | 点击歌曲卡片时触发 `recordInteraction("play")` | `MainActivity.kt` |
+| hybrid 算法无法触发 | 依赖 interactions 数据，修复后自动生效 | `hybrid_recommender.py` |
+| Favorites 冷启动误导 | 无收藏时返回空列表 | `backend/api/recommend.py` |
+| Likes 统计永远为 0 | 改为统计 favorites_db 长度 | `backend/api/auth.py` |
+| explicit chip 可点击 | AssistChip 改为普通 Text | `ProfileScreen.kt` |
+| Dark Mode 无效 | 状态提升至 MainActivity，传入 MaterialTheme | `MainActivity.kt` / `ProfileScreen.kt` |
+| Auto-play 开关无效 | 已移除（功能未实现） | `ProfileScreen.kt` |
+
+---
+
+## 八、待完善功能
 
 ### 可选升级 (非必需)
 
@@ -243,7 +261,7 @@ GENRE_EMOTION_MAP = {
 
 ---
 
-## 八、结论
+## 九、结论
 
 **开题报告要求的全部核心功能均已实现:**
 

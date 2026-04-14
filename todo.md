@@ -97,5 +97,5 @@
 - [x] Create algorithm evaluation script (Precision, Recall, F1, NDCG, Coverage)
 - [x] Compare Content-Based vs Collaborative vs Hybrid
 - [x] Test audio streaming playback
-- [ ] Final testing and bug fixes
+- [x] Final testing and bug fixes (2026-04-14: fixed interactions recording, hybrid algorithm, Favorites cold-start, Likes stat, Dark Mode, UI cleanup)
 - [ ] Prepare thesis/closing report

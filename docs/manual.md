@@ -86,8 +86,8 @@ The backend runs at `http://localhost:8001`
 
 ### 6. Profile
 - View your emotion history
-- See statistics (plays, likes)
-- Adjust settings
+- See statistics (Likes = number of favorited songs, Emotions = emotion history count)
+- Adjust settings (Dark Mode supported)
 
 ---
 
@@ -110,9 +110,19 @@ The backend automatically analyzes:
 - **Audio Features**: Tempo, energy, danceability
 
 ### Hybrid Recommendation Algorithm
+
+The algorithm displayed under the emotion chips shows the active strategy:
+
+| Algorithm | When it activates |
+|-----------|------------------|
+| `random` | New user, no emotion selected |
+| `content-based` | Emotion selected, no interaction history yet |
+| `hybrid` | Emotion selected + user has play history (collaborative filtering kicks in) |
+| `based-on-favorites` | Favorites tab recommendations |
+
 - **Content-Based**: Matches emotion tags
-- **Collaborative**: Based on similar users
-- **Hybrid**: Combines both approaches
+- **Collaborative**: Based on similar users' play history (requires interaction data)
+- **Hybrid**: Weighted combination of both (default 50/50)
 
 ---
 
