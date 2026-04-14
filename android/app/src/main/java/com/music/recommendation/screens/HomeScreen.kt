@@ -265,7 +265,6 @@ fun RecommendationsTab(
                     MusicItem(
                         music = music,
                         isFavorited = viewModel.favoriteIds.contains(music.id),
-                        onPlay = { viewModel.recordInteraction(music.id, "play") },
                         onLike = { viewModel.toggleFavorite(music.id) },
                         onMusicSelected = onMusicSelected
                     )
@@ -302,7 +301,6 @@ fun MusicListTab(
                     MusicItem(
                         music = music,
                         isFavorited = viewModel.favoriteIds.contains(music.id),
-                        onPlay = { viewModel.recordInteraction(music.id, "play") },
                         onLike = { viewModel.toggleFavorite(music.id) },
                         onMusicSelected = onMusicSelected
                     )
@@ -338,7 +336,6 @@ fun FavoritesTab(
                         MusicItem(
                             music = music,
                             isFavorited = viewModel.favoriteIds.contains(music.id),
-                            onPlay = { viewModel.recordInteraction(music.id, "play") },
                             onLike = { viewModel.toggleFavorite(music.id) },
                             onMusicSelected = onMusicSelected
                         )
@@ -366,7 +363,6 @@ fun FavoritesTab(
                     MusicItem(
                         music = music,
                         isFavorited = true,
-                        onPlay = { viewModel.recordInteraction(music.id, "play") },
                         onLike = { viewModel.toggleFavorite(music.id) },
                         onMusicSelected = onMusicSelected
                     )
@@ -407,7 +403,6 @@ fun FavoritesTab(
 fun MusicItem(
     music: Music,
     isFavorited: Boolean = false,
-    onPlay: () -> Unit,
     onLike: () -> Unit,
     onMusicSelected: (Music) -> Unit = {}
 ) {
