@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -27,12 +29,15 @@ class MainActivity : ComponentActivity() {
         audioPlayer = AudioPlayer(applicationContext)
 
         setContent {
-            MaterialTheme {
+            var darkModeEnabled by remember { mutableStateOf(false) }
+            MaterialTheme(
+                colorScheme = if (darkModeEnabled) darkColorScheme() else lightColorScheme()
+            ) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    MusicApp(audioPlayer!!)
+                    MusicApp(audioPlayer!!, darkModeEnabled) { darkModeEnabled = it }
                 }
             }
         }
@@ -52,7 +57,7 @@ sealed class Screen {
 }
 
 @Composable
-fun MusicApp(audioPlayer: AudioPlayer) {
+fun MusicApp(audioPlayer: AudioPlayer, darkModeEnabled: Boolean, onDarkModeChange: (Boolean) -> Unit) {
     var currentScreen by remember { mutableStateOf<Screen>(Screen.Login) }
     val authViewModel = remember { AuthViewModel() }
     val homeViewModel = remember { HomeViewModel() }
@@ -182,6 +187,8 @@ fun MusicApp(audioPlayer: AudioPlayer) {
                         authViewModel.logout()
                         currentScreen = Screen.Login
                     },
+                    darkModeEnabled = darkModeEnabled,
+                    onDarkModeChange = onDarkModeChange,
                     modifier = Modifier.padding(paddingValues)
                 )
             }

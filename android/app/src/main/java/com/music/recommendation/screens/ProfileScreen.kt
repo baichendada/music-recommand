@@ -72,12 +72,12 @@ class ProfileViewModel : ViewModel() {
 fun ProfileScreen(
     viewModel: ProfileViewModel,
     onLogout: () -> Unit,
+    darkModeEnabled: Boolean,
+    onDarkModeChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     // Settings local state
     var notificationsEnabled by remember { mutableStateOf(true) }
-    var darkModeEnabled by remember { mutableStateOf(false) }
-    var autoPlayEnabled by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
         viewModel.loadProfile()
@@ -297,19 +297,7 @@ fun ProfileScreen(
                             trailingContent = {
                                 Switch(
                                     checked = darkModeEnabled,
-                                    onCheckedChange = { darkModeEnabled = it }
-                                )
-                            }
-                        )
-                        ListItem(
-                            headlineContent = { Text("Auto-play Recommendations") },
-                            leadingContent = {
-                                Icon(Icons.Default.PlayCircle, contentDescription = null)
-                            },
-                            trailingContent = {
-                                Switch(
-                                    checked = autoPlayEnabled,
-                                    onCheckedChange = { autoPlayEnabled = it }
+                                    onCheckedChange = { onDarkModeChange(it) }
                                 )
                             }
                         )
