@@ -414,10 +414,7 @@ fun MusicItem(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {
-                onPlay()
-                onMusicSelected(music)
-            }
+            .clickable { onMusicSelected(music) }
     ) {
         Row(
             modifier = Modifier
