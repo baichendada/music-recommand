@@ -38,18 +38,14 @@ async def get_recommendations_by_favorites(
     limit: int = Query(10, ge=1, le=50)
 ):
     """Get music recommendations based on user's favorites"""
-    # Get user's favorites
     favorites = data_store.get_user_favorites(user_id)
 
     if not favorites:
-        # No favorites yet, return popular/recent music
-        return recommendation_service.get_recommendations(
-            user_id=user_id,
-            emotion=None,
-            limit=limit
+        return RecommendResponse(
+            recommendations=[],
+            algorithm="based-on-favorites"
         )
 
-    # Get recommendations based on favorites
     recommendations = recommendation_service.get_recommendations_based_on_favorites(
         user_id=user_id,
         favorite_music=favorites,
