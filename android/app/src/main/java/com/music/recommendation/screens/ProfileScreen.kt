@@ -26,7 +26,6 @@ class ProfileViewModel : ViewModel() {
     var likedMusic by mutableStateOf<List<Music>>(emptyList())
     var emotionHistory by mutableStateOf<List<Emotion>>(emptyList())
     var isLoading by mutableStateOf(false)
-    var totalPlays by mutableStateOf(0)
     var totalLikes by mutableStateOf(0)
 
     fun loadProfile() {
@@ -48,7 +47,6 @@ class ProfileViewModel : ViewModel() {
         viewModelScope.launch {
             when (val result = repository.getUserStats()) {
                 is Result.Success -> {
-                    totalPlays = result.data.plays
                     totalLikes = result.data.likes
                 }
                 else -> {}
