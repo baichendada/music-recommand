@@ -106,7 +106,7 @@ class HomeViewModel : ViewModel() {
                 when (repository.addFavorite(musicId)) {
                     is Result.Success -> {
                         favoriteIds = favoriteIds + musicId
-                        // Reload favorites to get full music data
+                        repository.recordInteraction(musicId, "like")
                         loadFavorites()
                     }
                     else -> {}
@@ -123,10 +123,9 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    fun recordInteraction(musicId: Int, interactionType: String) {
+    fun recordInteraction(musicId: Int, interactionType: String, playDuration: Int = 0) {
         viewModelScope.launch {
-            repository.recordInteraction(musicId, interactionType)
-            // Also add to favorites if "like"
+            repository.recordInteraction(musicId, interactionType, playDuration)
             if (interactionType == "like") {
                 favoriteIds = favoriteIds + musicId
                 loadFavorites()

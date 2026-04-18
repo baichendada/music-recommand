@@ -72,6 +72,13 @@ fun MusicApp(audioPlayer: AudioPlayer, darkModeEnabled: Boolean, onDarkModeChang
     var currentQueue by remember { mutableStateOf(listOf<Music>()) }
     var currentIndex by remember { mutableIntStateOf(0) }
 
+    // Wire up play-duration reporting
+    LaunchedEffect(Unit) {
+        audioPlayer.onTrackStopped = { musicId, playedSeconds ->
+            homeViewModel.recordInteraction(musicId, "play", playedSeconds)
+        }
+    }
+
     // Update queue when recommendations load
     LaunchedEffect(homeViewModel.recommendations) {
         homeViewModel.recommendations?.recommendations?.let { music ->
@@ -150,9 +157,6 @@ fun MusicApp(audioPlayer: AudioPlayer, darkModeEnabled: Boolean, onDarkModeChang
                             currentScreen = Screen.Login
                         },
                         onMusicSelected = { music ->
-                            // Record play interaction
-                            homeViewModel.recordInteraction(music.id, "play")
-                            // Play the selected music
                             currentQueue = homeViewModel.recommendations?.recommendations ?: listOf(music)
                             currentIndex = currentQueue.indexOf(music).coerceAtLeast(0)
                             audioPlayer.playPlaylist(currentQueue, currentIndex)

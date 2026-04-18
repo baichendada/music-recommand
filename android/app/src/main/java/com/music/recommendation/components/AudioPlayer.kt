@@ -33,6 +33,9 @@ class AudioPlayer(private val context: Context) {
     private var playlist: List<Music> = emptyList()
     private var currentIndex: Int = 0
 
+    // Called with (musicId, playedSeconds) whenever a track is stopped/switched
+    var onTrackStopped: ((musicId: Int, playedSeconds: Int) -> Unit)? = null
+
     private val playerListener = object : Player.Listener {
         override fun onPlaybackStateChanged(playbackState: Int) {
             Log.d("AudioPlayer", "Playback state changed: $playbackState")
@@ -83,6 +86,15 @@ class AudioPlayer(private val context: Context) {
     }
 
     fun playMusic(music: Music) {
+        // Report play duration for the track being replaced
+        _currentMusic.value?.let { prev ->
+            val playedMs = exoPlayer?.currentPosition ?: 0L
+            val playedSec = (playedMs / 1000).toInt()
+            if (playedSec > 0) {
+                onTrackStopped?.invoke(prev.id, playedSec)
+            }
+        }
+
         _currentMusic.value = music
         _progress.value = 0f
 
