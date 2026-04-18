@@ -96,12 +96,15 @@ class UserItemMatrix:
         n_components = min(50, min(self.user_item_matrix.shape) - 1)
         if n_components > 0:
             svd = TruncatedSVD(n_components=n_components, random_state=42)
-            matrix_reduced = svd.fit_transform(self.user_item_matrix)
-            self.item_similarity = cosine_similarity(matrix_reduced)
-            self.user_similarity = cosine_similarity(matrix_reduced.T)
+            # user_factors: (n_users, n_components)
+            user_factors = svd.fit_transform(self.user_item_matrix)
+            # item_factors: (n_items, n_components)
+            item_factors = svd.components_.T
+            self.user_similarity = cosine_similarity(user_factors)
+            self.item_similarity = cosine_similarity(item_factors)
         else:
-            self.item_similarity = cosine_similarity(self.user_item_matrix.T.toarray())
             self.user_similarity = cosine_similarity(self.user_item_matrix.toarray())
+            self.item_similarity = cosine_similarity(self.user_item_matrix.T.toarray())
 
         print(f"[+] Computed similarity matrices")
 
