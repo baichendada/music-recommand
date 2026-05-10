@@ -52,7 +52,7 @@ class HomeViewModel : ViewModel() {
         viewModelScope.launch {
             isLoading = true
             selectedEmotion = emotion
-            when (val result = repository.getRecommendations(emotion)) {
+            when (val result = repository.getRecommendations(emotion, limit = 50)) {
                 is Result.Success -> recommendations = result.data
                 is Result.Error -> error = result.message
                 is Result.Loading -> {}
@@ -81,7 +81,7 @@ class HomeViewModel : ViewModel() {
     fun loadFavoriteRecommendations() {
         viewModelScope.launch {
             isLoading = true
-            when (val result = repository.getRecommendationsByFavorites()) {
+            when (val result = repository.getRecommendationsByFavorites(limit = 50)) {
                 is Result.Success -> favoriteRecommendations = result.data
                 is Result.Error -> error = result.message
                 is Result.Loading -> {}
